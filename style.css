@@ -7,6 +7,7 @@ body, html {
 #container {
     text-align: center;
     display: none; /* Initially hidden, shown only in landscape mode */
+    position: relative; /* Needed for absolute positioning of controls */
 }
 
 #video {
@@ -16,14 +17,17 @@ body, html {
 }
 
 .control-panel {
+    position: absolute;
+    top: 0;
+    right: 0;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
-    margin-bottom: 10px;
+    padding: 10px;
 }
 
 #recordButton, #reloadButton, #timer {
-    margin: 0 5px;
+    margin: 5px;
     padding: 10px 20px;
     font-size: 16px;
     cursor: pointer;
