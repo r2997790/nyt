@@ -22,7 +22,6 @@ function checkOrientation() {
     }
 }
 
-
 async function toggleRecording() {
     const button = document.getElementById('recordButton');
     const videoElement = document.getElementById('video');
@@ -42,7 +41,6 @@ async function toggleRecording() {
         pauseCamera();
     }
 }
-
 
 function pauseCamera() {
     if (stream) {
@@ -73,29 +71,21 @@ function stopRecording() {
     document.getElementById('timer').textContent = '02:00';
 
     const videoBlob = new Blob(recordedBlobs, { type: 'video/webm' });
-    const url = window.URL.createObjectURL(videoBlob);
-
-    const downloadLink = document.getElementById('downloadLink');
-    downloadLink.href = url;
-    downloadLink.download = 'recorded_video.webm';
-    downloadLink.style.display = 'block';
-    downloadLink.addEventListener('click', () => {
-        setTimeout(() => {
-            window.URL.revokeObjectURL(url);
-        }, 100);
-    });
-
-    replaceVideoWithBox();
+    uploadVideo(videoBlob);
 }
 
-function replaceVideoWithBox() {
-    const video = document.getElementById('video');
-    const box = document.createElement('div');
-    box.style.width = video.offsetWidth + 'px';
-    box.style.height = video.offsetHeight + 'px';
-    box.style.backgroundColor = 'black'; // Or any color you prefer
-    video.replaceWith(box);
+function uploadVideo(videoBlob) {
+    const formData = new FormData();
+    formData.append('video', videoBlob, 'recorded_video.webm');
+
+    fetch('https://www.inlineeducation.com/ul/upload.php', {
+        method: 'POST',
+        body: formData
+    }).then(response => response.text())
+      .then(data => console.log(data))
+      .catch(error => console.error('Error:', error));
 }
+
 function startTimer() {
     let time = 120; // 2 minutes in seconds
     countdown = setInterval(() => {
