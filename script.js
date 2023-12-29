@@ -65,6 +65,7 @@ function stopRecording() {
     mediaRecorder.stop();
     clearInterval(countdown);
     document.getElementById('timer').textContent = '02:00';
+
     const videoBlob = new Blob(recordedBlobs, { type: 'video/webm' });
     const url = window.URL.createObjectURL(videoBlob);
 
@@ -77,8 +78,18 @@ function stopRecording() {
             window.URL.revokeObjectURL(url);
         }, 100);
     });
+
+    replaceVideoWithBox();
 }
 
+function replaceVideoWithBox() {
+    const video = document.getElementById('video');
+    const box = document.createElement('div');
+    box.style.width = video.offsetWidth + 'px';
+    box.style.height = video.offsetHeight + 'px';
+    box.style.backgroundColor = 'black'; // Or any color you prefer
+    video.replaceWith(box);
+}
 function startTimer() {
     let time = 120; // 2 minutes in seconds
     countdown = setInterval(() => {
