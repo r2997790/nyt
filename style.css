@@ -17,7 +17,8 @@ body, html {
     border: 1px solid black;
 }
 
-#recordButton, #reloadButton {
+#recordButton, #reloadButton, #timer {
+    display: inline-block; /* Align buttons and timer in a row */
     margin-top: 10px;
     padding: 10px 20px;
     font-size: 16px;
@@ -25,7 +26,7 @@ body, html {
 }
 
 #timer {
-    margin-top: 10px;
     font-size: 20px;
     color: red;
+    padding: 10px;
 }

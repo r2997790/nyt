@@ -5,6 +5,29 @@ let countdown;
 document.getElementById('recordButton').addEventListener('click', toggleRecording);
 document.getElementById('reloadButton').addEventListener('click', () => location.reload());
 
+window.addEventListener('load', () => {
+    if (isMobileDevice()) {
+        requestLandscapeAndFullscreen();
+    }
+});
+
+function isMobileDevice() {
+    return /Mobi|Android/i.test(navigator.userAgent);
+}
+
+function requestLandscapeAndFullscreen() {
+    screen.orientation.lock("landscape").catch(e => console.log(e));
+    if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen();
+    } else if (document.documentElement.mozRequestFullScreen) { /* Firefox */
+        document.documentElement.mozRequestFullScreen();
+    } else if (document.documentElement.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+        document.documentElement.webkitRequestFullscreen();
+    } else if (document.documentElement.msRequestFullscreen) { /* IE/Edge */
+        document.documentElement.msRequestFullscreen();
+    }
+}
+
 function handleDataAvailable(event) {
     if (event.data && event.data.size > 0) {
         recordedBlobs.push(event.data);
