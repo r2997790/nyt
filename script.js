@@ -71,18 +71,25 @@ function stopRecording() {
     document.getElementById('timer').textContent = '02:00';
 
     const videoBlob = new Blob(recordedBlobs, { type: 'video/webm' });
-    uploadVideo(videoBlob);
+    setupUpload(videoBlob);
+}
+
+function setupUpload(videoBlob) {
+    const uploadButton = document.getElementById('downloadLink');
+    uploadButton.textContent = 'Upload Video';
+    uploadButton.style.display = 'block';
+    uploadButton.onclick = () => uploadVideo(videoBlob);
 }
 
 function uploadVideo(videoBlob) {
     const formData = new FormData();
     formData.append('video', videoBlob, 'recorded_video.webm');
 
-    fetch('https://www.inlineeducation.com/ul/upload.php', {
+    fetch('https://www.inlineeducation.com/ul/', {
         method: 'POST',
         body: formData
     }).then(response => response.text())
-      .then(data => console.log(data))
+      .then(data => console.log('Upload successful:', data))
       .catch(error => console.error('Error:', error));
 }
 
