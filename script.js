@@ -1,14 +1,18 @@
 let mediaRecorder;
 let recordedBlobs;
 let countdown;
-let stream; // To hold the media stream
+let stream = null; // To hold the media stream
 
 document.getElementById('recordButton').addEventListener('click', toggleRecording);
-document.getElementById('reloadButton').addEventListener('click', () => location.reload());
-document.getElementById('uploadButton').addEventListener('click', () => uploadVideo(new Blob(recordedBlobs, { type: 'video/webm' })));
+document.getElementById('reloadButton').addEventListener('click', reloadPage);
+document.getElementById('uploadButton').addEventListener('click', uploadVideo);
 
 window.addEventListener('load', checkOrientation);
 window.addEventListener('resize', checkOrientation);
+
+function reloadPage() {
+    location.reload();
+}
 
 function checkOrientation() {
     if (window.innerWidth > window.innerHeight) {
@@ -18,35 +22,31 @@ function checkOrientation() {
     } else {
         // Portrait mode
         document.getElementById('container').style.display = 'none';
-        document.querySelector('.rotate-message').textContent = 'Please rotate your screen';
         document.querySelector('.rotate-message').style.display = 'flex';
     }
 }
 
 async function toggleRecording() {
     const button = document.getElementById('recordButton');
-    const videoElement = document.getElementById('video');
 
-    if (button.textContent === 'Record') {
+    if (!mediaRecorder || button.textContent === 'Record') {
         if (!stream) {
             stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            document.getElementById('video').srcObject = stream;
         }
-        videoElement.srcObject = stream;
-        videoElement.muted = true; // Mute playback to prevent feedback
-        startRecording(stream);
-        button.textContent = 'Stop';
-    } else {
-        stopRecording();
-        videoElement.muted = false; // Unmute playback after recording
-        button.textContent = 'Record';
-        pauseCamera();
-    }
-}
 
-function pauseCamera() {
-    if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-        stream = null;
+        recordedBlobs = [];
+        mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9' });
+        mediaRecorder.ondataavailable = handleDataAvailable;
+        mediaRecorder.start();
+
+        button.textContent = 'Stop';
+        startTimer();
+    } else {
+        mediaRecorder.stop();
+        mediaRecorder = null;
+        button.textContent = 'Record';
+        stopTimer();
     }
 }
 
@@ -54,35 +54,6 @@ function handleDataAvailable(event) {
     if (event.data && event.data.size > 0) {
         recordedBlobs.push(event.data);
     }
-}
-
-function startRecording(stream) {
-    recordedBlobs = [];
-    let options = { mimeType: 'video/webm;codecs=vp9' };
-    mediaRecorder = new MediaRecorder(stream, options);
-
-    mediaRecorder.ondataavailable = handleDataAvailable;
-    mediaRecorder.start();
-    startTimer();
-}
-
-function stopRecording() {
-    mediaRecorder.stop();
-    clearInterval(countdown);
-    document.getElementById('timer').textContent = '02:00';
-    document.getElementById('uploadButton').style.display = 'block'; // Show the upload button
-}
-
-function uploadVideo(videoBlob) {
-    const formData = new FormData();
-    formData.append('video', videoBlob, 'recorded_video.webm');
-
-    fetch('https://www.inlineeducation.com/ul/', {
-        method: 'POST',
-        body: formData
-    }).then(response => response.text())
-      .then(data => console.log('Upload successful:', data))
-      .catch(error => console.error('Error:', error));
 }
 
 function startTimer() {
@@ -100,4 +71,25 @@ function startTimer() {
             toggleRecording();
         }
     }, 1000);
+}
+
+function stopTimer() {
+    clearInterval(countdown);
+    document.getElementById('timer').textContent = '02:00';
+    document.getElementById('uploadButton').style.display = 'block';
+}
+
+function uploadVideo() {
+    if (recordedBlobs) {
+        const videoBlob = new Blob(recordedBlobs, { type: 'video/webm' });
+        const formData = new FormData();
+        formData.append('video', videoBlob, 'recorded_video.webm');
+
+        fetch('https://www.inlineeducation.com/ul/', {
+            method: 'POST',
+            body: formData
+        }).then(response => response.text())
+          .then(data => console.log('Upload successful:', data))
+          .catch(error => console.error('Error:', error));
+    }
 }
