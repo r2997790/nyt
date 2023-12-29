@@ -22,21 +22,27 @@ function checkOrientation() {
     }
 }
 
+
 async function toggleRecording() {
     const button = document.getElementById('recordButton');
+    const videoElement = document.getElementById('video');
+
     if (button.textContent === 'Record') {
         if (!stream) {
             stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         }
-        document.getElementById('video').srcObject = stream;
+        videoElement.srcObject = stream;
+        videoElement.muted = true; // Mute playback to prevent feedback
         startRecording(stream);
         button.textContent = 'Stop';
     } else {
         stopRecording();
+        videoElement.muted = false; // Unmute playback after recording
         button.textContent = 'Record';
-        pauseCamera(); // Pause the camera
+        pauseCamera();
     }
 }
+
 
 function pauseCamera() {
     if (stream) {
