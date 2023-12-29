@@ -1,9 +1,6 @@
 body, html {
     height: 100%;
     margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     background-color: #f0f0f0;
 }
 
@@ -18,9 +15,15 @@ body, html {
     border: 1px solid black;
 }
 
+.control-panel {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
 #recordButton, #reloadButton, #timer {
-    display: inline-block;
-    margin-top: 10px;
+    margin: 0 5px;
     padding: 10px 20px;
     font-size: 16px;
     cursor: pointer;
@@ -32,22 +35,22 @@ body, html {
     text-align: center;
 }
 
-/* Styles for landscape mode */
+/* Landscape mode */
 @media screen and (orientation: landscape) {
     #container {
-        display: block; /* Show container in landscape mode */
+        display: block;
     }
     .rotate-message {
-        display: none; /* Hide rotate message in landscape mode */
+        display: none;
     }
 }
 
-/* Styles for portrait mode */
+/* Portrait mode */
 @media screen and (orientation: portrait) {
     #container {
-        display: none; /* Hide container in portrait mode */
+        display: none;
     }
     .rotate-message {
-        display: block; /* Show rotate message in portrait mode */
+        display: block;
     }
 }
