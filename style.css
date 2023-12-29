@@ -9,24 +9,45 @@ body, html {
 
 #container {
     text-align: center;
+    display: none; /* Initially hidden, shown only in landscape mode */
 }
 
 #video {
-    width: 100%; /* Responsive width */
-    max-height: 100vh; /* Adjust height based on view height */
+    height: 70vh; /* 70% of the viewport height */
+    width: auto; /* Maintain aspect ratio */
     border: 1px solid black;
 }
 
 #recordButton, #reloadButton, #timer {
-    display: inline-block; /* Align buttons and timer in a row */
+    display: inline-block;
     margin-top: 10px;
     padding: 10px 20px;
     font-size: 16px;
     cursor: pointer;
 }
 
-#timer {
+.rotate-message {
+    display: none; /* Initially hidden, shown only in portrait mode */
     font-size: 20px;
-    color: red;
-    padding: 10px;
+    text-align: center;
+}
+
+/* Styles for landscape mode */
+@media screen and (orientation: landscape) {
+    #container {
+        display: block; /* Show container in landscape mode */
+    }
+    .rotate-message {
+        display: none; /* Hide rotate message in landscape mode */
+    }
+}
+
+/* Styles for portrait mode */
+@media screen and (orientation: portrait) {
+    #container {
+        display: none; /* Hide container in portrait mode */
+    }
+    .rotate-message {
+        display: block; /* Show rotate message in portrait mode */
+    }
 }
