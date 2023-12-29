@@ -5,6 +5,7 @@ let stream; // To hold the media stream
 
 document.getElementById('recordButton').addEventListener('click', toggleRecording);
 document.getElementById('reloadButton').addEventListener('click', () => location.reload());
+document.getElementById('uploadButton').addEventListener('click', () => uploadVideo(new Blob(recordedBlobs, { type: 'video/webm' })));
 
 window.addEventListener('load', checkOrientation);
 window.addEventListener('resize', checkOrientation);
@@ -69,16 +70,7 @@ function stopRecording() {
     mediaRecorder.stop();
     clearInterval(countdown);
     document.getElementById('timer').textContent = '02:00';
-
-    const videoBlob = new Blob(recordedBlobs, { type: 'video/webm' });
-    setupUpload(videoBlob);
-}
-
-function setupUpload(videoBlob) {
-    const uploadButton = document.getElementById('downloadLink');
-    uploadButton.textContent = 'Upload Video';
-    uploadButton.style.display = 'block';
-    uploadButton.onclick = () => uploadVideo(videoBlob);
+    document.getElementById('uploadButton').style.display = 'block'; // Show the upload button
 }
 
 function uploadVideo(videoBlob) {
