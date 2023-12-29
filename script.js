@@ -1,6 +1,7 @@
 let mediaRecorder;
 let recordedBlobs;
 let countdown;
+let stream; // To hold the media stream
 
 document.getElementById('recordButton').addEventListener('click', toggleRecording);
 document.getElementById('reloadButton').addEventListener('click', () => location.reload());
@@ -17,7 +18,30 @@ function checkOrientation() {
         // Portrait mode
         document.getElementById('container').style.display = 'none';
         document.querySelector('.rotate-message').textContent = 'Please rotate your screen';
-        document.querySelector('.rotate-message').style.display = 'block';
+        document.querySelector('.rotate-message').style.display = 'flex';
+    }
+}
+
+async function toggleRecording() {
+    const button = document.getElementById('recordButton');
+    if (button.textContent === 'Record') {
+        if (!stream) {
+            stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        }
+        document.getElementById('video').srcObject = stream;
+        startRecording(stream);
+        button.textContent = 'Stop';
+    } else {
+        stopRecording();
+        button.textContent = 'Record';
+        pauseCamera(); // Pause the camera
+    }
+}
+
+function pauseCamera() {
+    if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        stream = null;
     }
 }
 
@@ -48,19 +72,11 @@ function stopRecording() {
     downloadLink.href = url;
     downloadLink.download = 'recorded_video.webm';
     downloadLink.style.display = 'block';
-}
-
-async function toggleRecording() {
-    const button = document.getElementById('recordButton');
-    if (button.textContent === 'Record') {
-        button.textContent = 'Stop';
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        document.getElementById('video').srcObject = stream;
-        startRecording(stream);
-    } else {
-        button.textContent = 'Record';
-        stopRecording();
-    }
+    downloadLink.addEventListener('click', () => {
+        setTimeout(() => {
+            window.URL.revokeObjectURL(url);
+        }, 100);
+    });
 }
 
 function startTimer() {
