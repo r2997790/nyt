@@ -59,37 +59,4 @@ function handleDataAvailable(event) {
 function startTimer() {
     let time = 120; // 2 minutes in seconds
     countdown = setInterval(() => {
-        let minutes = parseInt(time / 60, 10);
-        let seconds = parseInt(time % 60, 10);
-
-        minutes = minutes < 10 ? "0" + minutes : minutes;
-        seconds = seconds < 10 ? "0" + seconds : seconds;
-
-        document.getElementById('timer').textContent = minutes + ":" + seconds;
-
-        if (--time < 0) {
-            toggleRecording();
-        }
-    }, 1000);
-}
-
-function stopTimer() {
-    clearInterval(countdown);
-    document.getElementById('timer').textContent = '02:00';
-    document.getElementById('uploadButton').style.display = 'block';
-}
-
-function uploadVideo() {
-    if (recordedBlobs) {
-        const videoBlob = new Blob(recordedBlobs, { type: 'video/webm' });
-        const formData = new FormData();
-        formData.append('video', videoBlob, 'recorded_video.webm');
-
-        fetch('https://www.inlineeducation.com/ul/', {
-            method: 'POST',
-            body: formData
-        }).then(response => response.text())
-          .then(data => console.log('Upload successful:', data))
-          .catch(error => console.error('Error:', error));
-    }
-}
+        let minutes = parseInt(time / 60, 
