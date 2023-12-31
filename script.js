@@ -28,10 +28,11 @@ function checkOrientation() {
 
 async function toggleRecording() {
     const button = document.getElementById('recordButton');
+    const videoElement = document.getElementById('video');
 
     if (!stream || button.textContent === 'Record') {
         stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        document.getElementById('video').srcObject = stream;
+        videoElement.srcObject = stream;
 
         recordedBlobs = [];
         mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9' });
@@ -44,7 +45,8 @@ async function toggleRecording() {
         mediaRecorder.stop();
         button.textContent = 'Record';
         stopTimer();
-        replaceVideoWithBlackRectangle();
+        videoElement.style.display = 'none';
+        createBlackBox(videoElement);
     }
 }
 
@@ -77,12 +79,12 @@ function stopTimer() {
     document.getElementById('uploadButton').style.display = 'block'; // Show the upload button
 }
 
-function replaceVideoWithBlackRectangle() {
-    const video = document.getElementById('video');
-    video.style.backgroundColor = 'black';
-    video.srcObject = null;
-    stream.getTracks().forEach(track => track.stop());
-    stream = null;
+function createBlackBox(videoElement) {
+    const blackBox = document.createElement('div');
+    blackBox.style.width = videoElement.offsetWidth + 'px';
+    blackBox.style.height = videoElement.offsetHeight + 'px';
+    blackBox.style.backgroundColor = 'black';
+    videoElement.parentNode.insertBefore(blackBox, videoElement.nextSibling);
 }
 
 function uploadVideo() {
@@ -94,15 +96,14 @@ function uploadVideo() {
         method: 'POST',
         body: formData
     }).then(response => {
-        if (response.ok) {
-            return response.text();
-        } else {
-            throw new Error('Upload failed');
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
         }
+        return response.text();
     }).then(data => {
         alert('Upload successful: ' + data);
     }).catch(error => {
         console.error('Error:', error);
-        alert('Error: ' + error.message);
+        alert('Upload failed: ' + error.message);
     });
 }
