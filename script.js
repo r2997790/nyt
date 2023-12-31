@@ -32,7 +32,6 @@ async function toggleRecording() {
     if (!stream || button.textContent === 'Record') {
         stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         document.getElementById('video').srcObject = stream;
-        document.getElementById('video').muted = true; // Mute to prevent feedback
 
         recordedBlobs = [];
         mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9' });
@@ -45,7 +44,7 @@ async function toggleRecording() {
         mediaRecorder.stop();
         button.textContent = 'Record';
         stopTimer();
-        document.getElementById('video').muted = false; // Unmute after recording
+        replaceVideoWithBlackRectangle();
     }
 }
 
@@ -78,6 +77,14 @@ function stopTimer() {
     document.getElementById('uploadButton').style.display = 'block'; // Show the upload button
 }
 
+function replaceVideoWithBlackRectangle() {
+    const video = document.getElementById('video');
+    video.style.backgroundColor = 'black';
+    video.srcObject = null;
+    stream.getTracks().forEach(track => track.stop());
+    stream = null;
+}
+
 function uploadVideo() {
     const videoBlob = new Blob(recordedBlobs, { type: 'video/webm' });
     const formData = new FormData();
@@ -86,7 +93,16 @@ function uploadVideo() {
     fetch('https://www.inlineeducation.com/ul/', {
         method: 'POST',
         body: formData
-    }).then(response => response.text())
-      .then(data => console.log('Upload successful:', data))
-      .catch(error => console.error('Error:', error));
+    }).then(response => {
+        if (response.ok) {
+            return response.text();
+        } else {
+            throw new Error('Upload failed');
+        }
+    }).then(data => {
+        alert('Upload successful: ' + data);
+    }).catch(error => {
+        console.error('Error:', error);
+        alert('Error: ' + error.message);
+    });
 }
