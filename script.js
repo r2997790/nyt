@@ -29,24 +29,23 @@ function checkOrientation() {
 async function toggleRecording() {
     const button = document.getElementById('recordButton');
 
-    if (!mediaRecorder || button.textContent === 'Record') {
-        if (!stream) {
-            stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-            document.getElementById('video').srcObject = stream;
-        }
+    if (!stream || button.textContent === 'Record') {
+        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        document.getElementById('video').srcObject = stream;
+        document.getElementById('video').muted = true; // Mute to prevent feedback
 
         recordedBlobs = [];
         mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9' });
         mediaRecorder.ondataavailable = handleDataAvailable;
         mediaRecorder.start();
+        startTimer();
 
         button.textContent = 'Stop';
-        startTimer();
     } else {
         mediaRecorder.stop();
-        mediaRecorder = null;
         button.textContent = 'Record';
         stopTimer();
+        document.getElementById('video').muted = false; // Unmute after recording
     }
 }
 
@@ -59,4 +58,35 @@ function handleDataAvailable(event) {
 function startTimer() {
     let time = 120; // 2 minutes in seconds
     countdown = setInterval(() => {
-        let minutes = parseInt(time / 60, 
+        let minutes = parseInt(time / 60, 10);
+        let seconds = parseInt(time % 60, 10);
+
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+
+        document.getElementById('timer').textContent = minutes + ":" + seconds;
+
+        if (--time < 0) {
+            toggleRecording();
+        }
+    }, 1000);
+}
+
+function stopTimer() {
+    clearInterval(countdown);
+    document.getElementById('timer').textContent = '02:00';
+    document.getElementById('uploadButton').style.display = 'block'; // Show the upload button
+}
+
+function uploadVideo() {
+    const videoBlob = new Blob(recordedBlobs, { type: 'video/webm' });
+    const formData = new FormData();
+    formData.append('video', videoBlob, 'recorded_video.webm');
+
+    fetch('https://www.inlineeducation.com/ul/', {
+        method: 'POST',
+        body: formData
+    }).then(response => response.text())
+      .then(data => console.log('Upload successful:', data))
+      .catch(error => console.error('Error:', error));
+}
